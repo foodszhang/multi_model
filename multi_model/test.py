@@ -21,6 +21,16 @@ def run_mul(times):
         return wrapper
     return decorate
 
+def async_run_mul(times):
+    def decorate(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            print('in function {} run {} times'.format(func.__name__, times))
+            for i in range(times):
+                await func(*args, **kwargs)
+        return wrapper
+    return decorate
+
 
 if __name__ == '__main__':
     @time_over
