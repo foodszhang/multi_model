@@ -12,7 +12,7 @@ import gevent
 import gevent.queue
 
 import aiohttp
-
+import aiofiles
 
 import requests
 
@@ -76,13 +76,13 @@ class ProcessWebIOTest(mp.Process, IOWebTest):
         IOWebTest.run(self)
 
 
-@run_mul(5)
+@run_mul(500)
 def insert_data(dir_queue):
     dirs = os.scandir('{}/pic/'.format(os.path.abspath(os.path.dirname(__file__))))
     for d in dirs:
         dir_queue.put(d.path)
 
-@run_mul(3)
+@run_mul(10)
 def insert_web_data(dir_queue):
     url = Config.CRAWL_URL
     t = requests.get(url).text
@@ -91,13 +91,13 @@ def insert_web_data(dir_queue):
     for u in urls:
         dir_queue.put(u)
 
-@async_run_mul(5)
+@async_run_mul(500)
 async def async_insert_data(dir_queue):
     dirs = os.scandir('{}/pic/'.format(os.path.abspath(os.path.dirname(__file__))))
     for d in dirs:
         await dir_queue.put(d.path)
 
-@async_run_mul(3)
+@async_run_mul(10)
 async def async_insert_web_data(dir_queue):
     url = Config.CRAWL_URL
     t = requests.get(url).text
@@ -112,10 +112,12 @@ async def async_read_write(dir_queue):
         d = await dir_queue.get()
         if d is None:
             break
-        with open(d, 'r') as fp:
-            content = fp.read()
-        with open(d, 'w') as fp:
-            fp.write(content)
+        fp = await aiofiles.open(d, 'r')
+        content = await fp.read()
+        await fp.close()
+        fp = await aiofiles.open(d, 'w')
+        await fp.write(content)
+        await fp.close()
         dir_queue.task_done()
 
 def gevent_web_read_write(dir_queue):
