@@ -1,13 +1,8 @@
-from multi_model.mt import (
-        rw, mt_rw, mp_rw, mt_web_rw, mp_web_rw, web_rw,
-        co_rw, co_web_rw, gevent_web_rw)
+from multi_model.mt import TestCase
 if __name__ == '__main__':
-    #web_rw()
-    mt_web_rw()
-    mp_web_rw()
-    co_web_rw()
-    gevent_web_rw()
-    rw()
-    co_rw()
-    mt_rw()
-    mp_rw()
+    #co_web_unlimit_rw()
+    test = TestCase(times=1)
+    test.co_web_rw()
+    test.web_rw()
+    test.mp_web_rw()
+    test.mt_web_rw()
